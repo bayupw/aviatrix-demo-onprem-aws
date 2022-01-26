@@ -43,7 +43,7 @@ resource "aviatrix_transit_external_device_conn" "pubConns" {
 # Create private S2C+BGP Connections to transit
 resource "aviatrix_transit_external_device_conn" "privConns" {
   for_each          = { for conn in local.private_conns : "${conn.name}.${conn.tun_num}" => conn }
-  vpc_id            = data.aviatrix_transit_gateway.avtx_gateways[each.value.name].vpc_id
+  vpc_id            = data.aviatrix_spoke_gateway.avtx_gateways[each.value.name].vpc_id
   connection_name   = "${var.hostname}_to_${each.value.name}-private-${each.value.tun_num}"
   gw_name           = each.value.name
   tunnel_protocol   = var.tunnel_proto
