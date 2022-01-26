@@ -11,7 +11,7 @@ resource "local_file" "private_key" {
   file_permission = "0600"
 }
 
-data "aviatrix_transit_gateway" "avtx_gateways" {
+data "aviatrix_spoke_gateway" "avtx_gateways" {
   for_each = toset(local.avtx_gateways)
   gw_name  = each.value
 }
@@ -19,7 +19,7 @@ data "aviatrix_transit_gateway" "avtx_gateways" {
 # Create public S2C+BGP Connections to transit
 resource "aviatrix_transit_external_device_conn" "pubConns" {
   for_each          = { for conn in local.public_conns : "${conn.name}.${conn.tun_num}" => conn }
-  vpc_id            = data.aviatrix_transit_gateway.avtx_gateways[each.value.name].vpc_id
+  vpc_id            = data.aviatrix_spoke_gateway.avtx_gateways[each.value.name].vpc_id
   connection_name   = "${var.hostname}_to_${each.value.name}-${each.value.tun_num}"
   gw_name           = each.value.name
   tunnel_protocol   = var.tunnel_proto == "LAN" ? "IPsec" : var.tunnel_proto
