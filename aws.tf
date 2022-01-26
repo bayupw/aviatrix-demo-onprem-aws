@@ -22,6 +22,10 @@ data "aws_subnet" "bgpolan_subnet" {
 resource "aws_vpc" "csr_aws_vpc" {
   count = var.public_subnet_ids != null ? 0 : 1
   cidr_block = var.network_cidr
+  
+  tags = {
+    "Name" = "${var.hostname}"
+  }
 }
 
 resource "aws_subnet" "csr_aws_public_subnet" {
@@ -403,7 +407,7 @@ resource "aws_instance" "CSROnprem" {
     priv_conn_keys = keys(aviatrix_transit_external_device_conn.privConns)
     csr_eip        = aws_eip.csr_public_eip[count.index].public_ip
     csr_pip        = tolist(aws_network_interface.CSR_Public_ENI[count.index].private_ips)[0]
-    gateway        = data.aviatrix_transit_gateway.avtx_gateways
+    gateway        = data.aviatrix_spoke_gateway.avtx_gateways
     hostname       = "${var.hostname}-${count.index + 1}"
     is_ha          = local.is_ha
     test_client_ip = var.create_client ? data.aws_network_interface.test_client_if[count.index].private_ip : ""
